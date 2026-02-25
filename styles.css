@@ -1,0 +1,94 @@
+/* Base - Dark UI */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Poppins', sans-serif; background: #0a0705; color: #FFF4E6; min-height: 100vh; }
+
+.header { text-align: center; padding: 8px 12px 28px; border-bottom: 2px solid #4A3316; }
+.logo { width: 272px; display:block; margin: 0 auto 8px; }
+h1 { color: #FF9933; font-weight: 600; font-size: 20px; }
+
+.container { max-width: 980px; margin: 30px auto; padding: 18px; }
+
+/* Inputs */
+.inputs { display: grid; gap: 10px; background: #1a1106; border: 1px solid #4D3319; padding: 18px; border-radius: 12px; max-width: 820px; justify-items: center; justify-content: center; margin: auto; }
+label { color: #FFB366; font-size: 13px; }
+input { background: #120d06; border: 1px solid #FF9933; color: #fff; padding: 10px; border-radius: 8px; font-size: 15px; max-width: 310px; width: 100%; }
+.row { display:flex; gap:10px; margin-top:6px; }
+.action-btn, .pdf-btn {
+  background: linear-gradient(90deg,#FF9933,#CC7722); border: none; padding: 10px 14px; border-radius: 10px; color:#1a0e05; font-weight:700; cursor:pointer;
+}
+.pdf-btn { background: linear-gradient(90deg,#fff,#FFF4E6); color:#1a0e05; }
+.action-btn:hover, .pdf-btn:hover { transform: translateY(-3px); }
+
+/* Resultados */
+h2 { color:#FF9933; text-align:center; margin-top:22px; }
+.tabla-wrapper { 
+  margin-top: 18px; 
+  overflow-x: auto; 
+  -webkit-overflow-scrolling: touch;
+}
+.table, table { width:100%; border-collapse: collapse; min-width: 300px; }
+
+.tabla-oscura thead th {
+  background: #4A3316; color: #FFE4B3; padding: 10px; text-align:center; font-weight:600; border:1px solid #3D2814;
+}
+.tabla-oscura tbody td {
+  background: rgba(74,51,22,0.03); color:#FFD699; padding: 10px; text-align:center; border-bottom:1px solid rgba(74,51,22,0.25);
+}
+.tabla-oscura tbody tr:hover td { background: rgba(255,153,51,0.04); }
+
+.roi { margin-top:14px; text-align:center; font-size:17px; color:#FFB84D; font-weight:600; }
+
+/* Chart area */
+.chart-wrapper { width:100%; height:340px; margin-top:20px; }
+
+/* Note & footer */
+.nota { font-size:12px; color:#FFB366; text-align:center; margin-top:12px; }
+.footer { text-align:center; padding:18px; color:#8B6914; font-size:12px; margin-top:18px; }
+
+.oculto { display:none; }
+
+/* ===== Styles for PDF template (light theme) - hidden in UI but used by html2canvas when generating PDF ===== */
+#pdfTemplate {
+  width: 800px;
+  padding: 18px;
+  background: #ffffff;
+  color: #111;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: none;
+}
+.pdf-header { text-align:center; margin-bottom:14px; }
+.pdf-title { color:#8B5A00; font-size:18px; font-weight:700 }
+.pdf-summary { color:#222; margin-top:6px; font-size:13px; }
+.pdf-table { width:100%; border-collapse:collapse; margin-top:12px; }
+.pdf-table th { background:#FFF8E7; color:#8B5A00; padding:8px; border:1px solid #FFE9C2; text-align:center; }
+.pdf-table td { padding:8px; border:1px solid #FFF2DD; text-align:center; color:#111; }
+
+/* hide pdfTemplate from view */
+#pdfTemplateWrapper { position: fixed; left: -9999px; top: -9999px; width: 820px; z-index: -10; }
+
+@media (max-width:600px){
+  .container{ padding:12px; }
+  h1{ font-size:18px; }
+  .chart-wrapper{ height:260px; }
+  
+  /* Tabla responsive en móvil */
+  .tabla-oscura thead th {
+    font-size: 11px;
+    padding: 8px 6px;
+  }
+  .tabla-oscura tbody td {
+    font-size: 11px;
+    padding: 8px 6px;
+  }
+  h2 {
+    font-size: 16px;
+  }
+  .roi {
+    font-size: 14px;
+  }
+  .tabla-wrapper {
+    margin-left: -12px;
+    margin-right: -12px;
+    padding: 0 12px;
+  }
+}
