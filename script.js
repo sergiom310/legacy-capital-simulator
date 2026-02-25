@@ -306,6 +306,7 @@ async function generarPDF() {
 
   // Primera página - Header, resumen y tabla (o parte de ella)
   let currentY = margin;
+  let currentPage = 1;
   
   pdf.setFillColor(255, 255, 255);
   pdf.rect(0, 0, pageWidth, pageHeight, 'F');
@@ -319,7 +320,7 @@ async function generarPDF() {
   currentY += summaryHeight + 5;
 
   // Calcular cuánto espacio queda para la tabla en la primera página
-  const spaceLeft = pageHeight - currentY - 15; // 15mm para el pie de página
+  let spaceLeft = pageHeight - currentY - 15; // 15mm para el pie de página
   
   if (tableHeight <= spaceLeft) {
     // La tabla cabe en la primera página
@@ -329,12 +330,16 @@ async function generarPDF() {
     // Intentar agregar el gráfico en la misma página
     if (chartImgData && (currentY + chartHeight + 15) <= pageHeight) {
       pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+      currentY += chartHeight;
     } else if (chartImgData) {
       // El gráfico no cabe, crear nueva página
       pdf.addPage();
+      currentPage++;
+      currentY = margin;
       pdf.setFillColor(255, 255, 255);
       pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-      pdf.addImage(chartImgData, 'PNG', margin, margin, chartWidth, chartHeight);
+      pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+      currentY += chartHeight;
     }
   } else {
     // La tabla no cabe en una página, dividirla
@@ -349,13 +354,29 @@ async function generarPDF() {
     // Crear páginas adicionales para el resto de la tabla
     while (remainingTableHeight > 0) {
       pdf.addPage();
+      currentPage++;
+      currentY = margin;
       pdf.setFillColor(255, 255, 255);
       pdf.rect(0, 0, pageWidth, pageHeight, 'F');
       
-      const pageTableHeight = Math.min(remainingTableHeight, usableHeight - 10);
+      // Calcular cuánto espacio tenemos en esta página
+      // Dejar espacio para posible gráfica si es la última iteración
+      const isLastTablePage = remainingTableHeight <= (usableHeight - 10);
+      const maxTableHeightForPage = isLastTablePage ? 
+        Math.min(remainingTableHeight, (usableHeight - chartHeight - 20)) : 
+        Math.min(remainingTableHeight, usableHeight - 10);
+      
+      // Si es la última página de tabla y el gráfico cabe, usar menos espacio
+      let pageTableHeight;
+      if (isLastTablePage && chartImgData && (remainingTableHeight + chartHeight + 20) <= usableHeight) {
+        // El gráfico cabe en esta página con la tabla
+        pageTableHeight = remainingTableHeight;
+      } else {
+        // Usar todo el espacio disponible
+        pageTableHeight = Math.min(remainingTableHeight, usableHeight - 10);
+      }
       
       // Necesitamos recortar la imagen de la tabla
-      // Como html2canvas genera una imagen completa, usamos clip/crop via canvas
       const cropCanvas = document.createElement('canvas');
       cropCanvas.width = tableCanvas.width;
       const pixelOffset = (tableOffsetY / tableHeight) * tableCanvas.height;
@@ -366,18 +387,29 @@ async function generarPDF() {
       cropCtx.drawImage(tableCanvas, 0, pixelOffset, tableCanvas.width, pixelHeight, 0, 0, tableCanvas.width, pixelHeight);
       
       const croppedImgData = cropCanvas.toDataURL("image/png");
-      pdf.addImage(croppedImgData, 'PNG', margin, margin, tableWidth, pageTableHeight);
+      pdf.addImage(croppedImgData, 'PNG', margin, currentY, tableWidth, pageTableHeight);
+      currentY += pageTableHeight + 10;
       
       remainingTableHeight -= pageTableHeight;
       tableOffsetY += pageTableHeight;
     }
     
-    // Agregar gráfico en nueva página
+    // Agregar gráfico: intentar en la página actual primero
     if (chartImgData) {
-      pdf.addPage();
-      pdf.setFillColor(255, 255, 255);
-      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-      pdf.addImage(chartImgData, 'PNG', margin, margin, chartWidth, chartHeight);
+      if ((currentY + chartHeight + 15) <= pageHeight) {
+        // Cabe en la página actual
+        pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+        currentY += chartHeight;
+      } else {
+        // Crear nueva página para el gráfico
+        pdf.addPage();
+        currentPage++;
+        currentY = margin;
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+        pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+        currentY += chartHeight;
+      }
     }
   }
 
