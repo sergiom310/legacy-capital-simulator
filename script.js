@@ -257,36 +257,138 @@ async function generarPDF() {
   // esperar un instante para que imágenes carguen correctamente
   await new Promise(r => setTimeout(r, 250));
 
-  // generar canvas con html2canvas (scale para mayor resolución)
-  const canvas = await html2canvas(pdfTemplate, { scale: 2, useCORS: true });
-  const imgData = canvas.toDataURL("image/png");
-
   // preparar jsPDF (A4 vertical)
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 10;
+  const usableHeight = pageHeight - 20; // con márgenes superior e inferior
 
-  // añadir imagen con márgenes (convertir px->mm aproximado)
-  const imgProps = pdf.getImageProperties(imgData);
-  const pdfImgWidth = pageWidth - 20; // margen 10mm cada lado
-  const pdfImgHeight = (imgProps.height * pdfImgWidth) / imgProps.width;
+  // Capturar header y resumen
+  const headerElement = pdfTemplate.querySelector('.pdf-header');
+  const summaryElement = pdfTemplate.querySelector('.pdf-summary');
+  const tableElement = pdfTemplate.querySelector('.pdf-table');
+  
+  // Generar imagen del header
+  const headerCanvas = await html2canvas(headerElement, { scale: 2, useCORS: true });
+  const headerImgData = headerCanvas.toDataURL("image/png");
+  const headerProps = pdf.getImageProperties(headerImgData);
+  const headerWidth = pageWidth - 20;
+  const headerHeight = (headerProps.height * headerWidth) / headerProps.width;
 
-  // Escribir fondo blanco (ya la imagen tiene blanco)
+  // Generar imagen del resumen
+  const summaryCanvas = await html2canvas(summaryElement, { scale: 2, useCORS: true });
+  const summaryImgData = summaryCanvas.toDataURL("image/png");
+  const summaryProps = pdf.getImageProperties(summaryImgData);
+  const summaryWidth = pageWidth - 20;
+  const summaryHeight = (summaryProps.height * summaryWidth) / summaryProps.width;
+
+  // Generar imagen de la tabla
+  const tableCanvas = await html2canvas(tableElement, { scale: 2, useCORS: true });
+  const tableImgData = tableCanvas.toDataURL("image/png");
+  const tableProps = pdf.getImageProperties(tableImgData);
+  const tableWidth = pageWidth - 20;
+  const tableHeight = (tableProps.height * tableWidth) / tableProps.width;
+
+  // Capturar imagen del gráfico (si existe)
+  let chartImgData = null;
+  let chartWidth = 0;
+  let chartHeight = 0;
+  const chartElement = pdfTemplate.querySelector('img[src^="data:image"]');
+  if (chartElement) {
+    const chartCanvas = await html2canvas(chartElement, { scale: 2, useCORS: true });
+    chartImgData = chartCanvas.toDataURL("image/png");
+    const chartProps = pdf.getImageProperties(chartImgData);
+    chartWidth = pageWidth - 20;
+    chartHeight = (chartProps.height * chartWidth) / chartProps.width;
+  }
+
+  // Primera página - Header, resumen y tabla (o parte de ella)
+  let currentY = margin;
+  
   pdf.setFillColor(255, 255, 255);
   pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+  // Agregar header
+  pdf.addImage(headerImgData, 'PNG', margin, currentY, headerWidth, headerHeight);
+  currentY += headerHeight + 5;
 
-  // Agregar la imagen (centrada con margenes)
-  pdf.addImage(imgData, 'PNG', 10, 10, pdfImgWidth, pdfImgHeight);
+  // Agregar resumen
+  pdf.addImage(summaryImgData, 'PNG', margin, currentY, summaryWidth, summaryHeight);
+  currentY += summaryHeight + 5;
 
-  // Pie con fecha
+  // Calcular cuánto espacio queda para la tabla en la primera página
+  const spaceLeft = pageHeight - currentY - 15; // 15mm para el pie de página
+  
+  if (tableHeight <= spaceLeft) {
+    // La tabla cabe en la primera página
+    pdf.addImage(tableImgData, 'PNG', margin, currentY, tableWidth, tableHeight);
+    currentY += tableHeight + 10;
+    
+    // Intentar agregar el gráfico en la misma página
+    if (chartImgData && (currentY + chartHeight + 15) <= pageHeight) {
+      pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+    } else if (chartImgData) {
+      // El gráfico no cabe, crear nueva página
+      pdf.addPage();
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+      pdf.addImage(chartImgData, 'PNG', margin, margin, chartWidth, chartHeight);
+    }
+  } else {
+    // La tabla no cabe en una página, dividirla
+    // Añadir lo que cabe en la primera página
+    const firstPageTableHeight = spaceLeft;
+    pdf.addImage(tableImgData, 'PNG', margin, currentY, tableWidth, firstPageTableHeight, '', 'FAST', 0, 0);
+    
+    // Calcular cuánto queda de la tabla
+    let remainingTableHeight = tableHeight - firstPageTableHeight;
+    let tableOffsetY = firstPageTableHeight;
+    
+    // Crear páginas adicionales para el resto de la tabla
+    while (remainingTableHeight > 0) {
+      pdf.addPage();
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+      const pageTableHeight = Math.min(remainingTableHeight, usableHeight - 10);
+      
+      // Necesitamos recortar la imagen de la tabla
+      // Como html2canvas genera una imagen completa, usamos clip/crop via canvas
+      const cropCanvas = document.createElement('canvas');
+      cropCanvas.width = tableCanvas.width;
+      const pixelOffset = (tableOffsetY / tableHeight) * tableCanvas.height;
+      const pixelHeight = (pageTableHeight / tableHeight) * tableCanvas.height;
+      cropCanvas.height = pixelHeight;
+      
+      const cropCtx = cropCanvas.getContext('2d');
+      cropCtx.drawImage(tableCanvas, 0, pixelOffset, tableCanvas.width, pixelHeight, 0, 0, tableCanvas.width, pixelHeight);
+      
+      const croppedImgData = cropCanvas.toDataURL("image/png");
+      pdf.addImage(croppedImgData, 'PNG', margin, margin, tableWidth, pageTableHeight);
+      
+      remainingTableHeight -= pageTableHeight;
+      tableOffsetY += pageTableHeight;
+    }
+    
+    // Agregar gráfico en nueva página
+    if (chartImgData) {
+      pdf.addPage();
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+      pdf.addImage(chartImgData, 'PNG', margin, margin, chartWidth, chartHeight);
+    }
+  }
+
+  // Pie con fecha en la última página
   const fecha = new Date().toLocaleDateString('es-ES');
   pdf.setFontSize(10);
   pdf.setTextColor(120);
-  pdf.text(`Generado el ${fecha}`, 10, pageHeight - 10);
+  pdf.text(`Generado el ${fecha}`, margin, pageHeight - 10);
 
   // descargar
-  pdf.save(`Reporte_MovveWallet_${fecha.replace(/\//g,'-')}.pdf`);
+  pdf.save(`Reporte_LegacyCapital_${fecha.replace(/\//g,'-')}.pdf`);
 
   // limpiar wrapper
   wrapper.remove();
