@@ -343,9 +343,20 @@ async function generarPDF() {
     }
   } else {
     // La tabla no cabe en una página, dividirla
-    // Añadir lo que cabe en la primera página
+    // Añadir lo que cabe en la primera página usando el mismo método de crop
     const firstPageTableHeight = spaceLeft;
-    pdf.addImage(tableImgData, 'PNG', margin, currentY, tableWidth, firstPageTableHeight, '', 'FAST', 0, 0);
+    
+    // Recortar la imagen de la tabla para la primera página
+    const firstPageCropCanvas = document.createElement('canvas');
+    firstPageCropCanvas.width = tableCanvas.width;
+    const firstPagePixelHeight = (firstPageTableHeight / tableHeight) * tableCanvas.height;
+    firstPageCropCanvas.height = firstPagePixelHeight;
+    
+    const firstPageCropCtx = firstPageCropCanvas.getContext('2d');
+    firstPageCropCtx.drawImage(tableCanvas, 0, 0, tableCanvas.width, firstPagePixelHeight, 0, 0, tableCanvas.width, firstPagePixelHeight);
+    
+    const firstPageCroppedImgData = firstPageCropCanvas.toDataURL("image/png");
+    pdf.addImage(firstPageCroppedImgData, 'PNG', margin, currentY, tableWidth, firstPageTableHeight);
     
     // Calcular cuánto queda de la tabla
     let remainingTableHeight = tableHeight - firstPageTableHeight;
