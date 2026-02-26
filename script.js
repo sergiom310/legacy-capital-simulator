@@ -270,35 +270,35 @@ async function generarPDF() {
   const summaryElement = pdfTemplate.querySelector('.pdf-summary');
   const tableElement = pdfTemplate.querySelector('.pdf-table');
   
-  // Generar imagen del header
-  const headerCanvas = await html2canvas(headerElement, { scale: 2, useCORS: true });
-  const headerImgData = headerCanvas.toDataURL("image/png");
+  // Generar imagen del header con compresión JPEG
+  const headerCanvas = await html2canvas(headerElement, { scale: 1.5, useCORS: true });
+  const headerImgData = headerCanvas.toDataURL("image/jpeg", 0.85);
   const headerProps = pdf.getImageProperties(headerImgData);
   const headerWidth = pageWidth - 20;
   const headerHeight = (headerProps.height * headerWidth) / headerProps.width;
 
-  // Generar imagen del resumen
-  const summaryCanvas = await html2canvas(summaryElement, { scale: 2, useCORS: true });
-  const summaryImgData = summaryCanvas.toDataURL("image/png");
+  // Generar imagen del resumen con compresión JPEG
+  const summaryCanvas = await html2canvas(summaryElement, { scale: 1.5, useCORS: true });
+  const summaryImgData = summaryCanvas.toDataURL("image/jpeg", 0.85);
   const summaryProps = pdf.getImageProperties(summaryImgData);
   const summaryWidth = pageWidth - 20;
   const summaryHeight = (summaryProps.height * summaryWidth) / summaryProps.width;
 
-  // Generar imagen de la tabla
-  const tableCanvas = await html2canvas(tableElement, { scale: 2, useCORS: true });
-  const tableImgData = tableCanvas.toDataURL("image/png");
+  // Generar imagen de la tabla con compresión JPEG
+  const tableCanvas = await html2canvas(tableElement, { scale: 1.5, useCORS: true });
+  const tableImgData = tableCanvas.toDataURL("image/jpeg", 0.85);
   const tableProps = pdf.getImageProperties(tableImgData);
   const tableWidth = pageWidth - 20;
   const tableHeight = (tableProps.height * tableWidth) / tableProps.width;
 
-  // Capturar imagen del gráfico (si existe)
+  // Capturar imagen del gráfico (si existe) con compresión JPEG
   let chartImgData = null;
   let chartWidth = 0;
   let chartHeight = 0;
   const chartElement = pdfTemplate.querySelector('img[src^="data:image"]');
   if (chartElement) {
-    const chartCanvas = await html2canvas(chartElement, { scale: 2, useCORS: true });
-    chartImgData = chartCanvas.toDataURL("image/png");
+    const chartCanvas = await html2canvas(chartElement, { scale: 1.5, useCORS: true });
+    chartImgData = chartCanvas.toDataURL("image/jpeg", 0.85);
     const chartProps = pdf.getImageProperties(chartImgData);
     chartWidth = pageWidth - 20;
     chartHeight = (chartProps.height * chartWidth) / chartProps.width;
@@ -324,12 +324,12 @@ async function generarPDF() {
   
   if (tableHeight <= spaceLeft) {
     // La tabla cabe en la primera página
-    pdf.addImage(tableImgData, 'PNG', margin, currentY, tableWidth, tableHeight);
+    pdf.addImage(tableImgData, 'JPEG', margin, currentY, tableWidth, tableHeight);
     currentY += tableHeight + 10;
     
     // Intentar agregar el gráfico en la misma página
     if (chartImgData && (currentY + chartHeight + 15) <= pageHeight) {
-      pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+      pdf.addImage(chartImgData, 'JPEG', margin, currentY, chartWidth, chartHeight);
       currentY += chartHeight;
     } else if (chartImgData) {
       // El gráfico no cabe, crear nueva página
@@ -338,7 +338,7 @@ async function generarPDF() {
       currentY = margin;
       pdf.setFillColor(255, 255, 255);
       pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-      pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+      pdf.addImage(chartImgData, 'JPEG', margin, currentY, chartWidth, chartHeight);
       currentY += chartHeight;
     }
   } else {
@@ -355,8 +355,8 @@ async function generarPDF() {
     const firstPageCropCtx = firstPageCropCanvas.getContext('2d');
     firstPageCropCtx.drawImage(tableCanvas, 0, 0, tableCanvas.width, firstPagePixelHeight, 0, 0, tableCanvas.width, firstPagePixelHeight);
     
-    const firstPageCroppedImgData = firstPageCropCanvas.toDataURL("image/png");
-    pdf.addImage(firstPageCroppedImgData, 'PNG', margin, currentY, tableWidth, firstPageTableHeight);
+    const firstPageCroppedImgData = firstPageCropCanvas.toDataURL("image/jpeg", 0.85);
+    pdf.addImage(firstPageCroppedImgData, 'JPEG', margin, currentY, tableWidth, firstPageTableHeight);
     
     // Calcular cuánto queda de la tabla
     let remainingTableHeight = tableHeight - firstPageTableHeight;
@@ -397,8 +397,8 @@ async function generarPDF() {
       const cropCtx = cropCanvas.getContext('2d');
       cropCtx.drawImage(tableCanvas, 0, pixelOffset, tableCanvas.width, pixelHeight, 0, 0, tableCanvas.width, pixelHeight);
       
-      const croppedImgData = cropCanvas.toDataURL("image/png");
-      pdf.addImage(croppedImgData, 'PNG', margin, currentY, tableWidth, pageTableHeight);
+      const croppedImgData = cropCanvas.toDataURL("image/jpeg", 0.85);
+      pdf.addImage(croppedImgData, 'JPEG', margin, currentY, tableWidth, pageTableHeight);
       currentY += pageTableHeight + 10;
       
       remainingTableHeight -= pageTableHeight;
@@ -409,7 +409,7 @@ async function generarPDF() {
     if (chartImgData) {
       if ((currentY + chartHeight + 15) <= pageHeight) {
         // Cabe en la página actual
-        pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+        pdf.addImage(chartImgData, 'JPEG', margin, currentY, chartWidth, chartHeight);
         currentY += chartHeight;
       } else {
         // Crear nueva página para el gráfico
@@ -418,7 +418,7 @@ async function generarPDF() {
         currentY = margin;
         pdf.setFillColor(255, 255, 255);
         pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-        pdf.addImage(chartImgData, 'PNG', margin, currentY, chartWidth, chartHeight);
+        pdf.addImage(chartImgData, 'JPEG', margin, currentY, chartWidth, chartHeight);
         currentY += chartHeight;
       }
     }
