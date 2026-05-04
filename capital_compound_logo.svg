@@ -1,0 +1,97 @@
+<svg width="100%" viewBox="0 0 600 326" role="img" xmlns="http://www.w3.org/2000/svg" style="">
+<title style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Capital logo con interés compuesto, estilo futurista dorado</title>
+<desc style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Logo futurista con curva de crecimiento exponencial, símbolo de moneda y texto CAPITAL en letras metálicas doradas sobre fondo transparente</desc>
+<defs>
+  <linearGradient id="goldText" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" style="stop-color:#F5D97A"/>
+    <stop offset="40%" style="stop-color:#E8B84B"/>
+    <stop offset="70%" style="stop-color:#C8860A"/>
+    <stop offset="100%" style="stop-color:#F0C93A"/>
+  </linearGradient>
+  <linearGradient id="goldArrow" x1="0%" y1="100%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#C8860A"/>
+    <stop offset="50%" style="stop-color:#F0C93A"/>
+    <stop offset="100%" style="stop-color:#FFF0A0"/>
+  </linearGradient>
+  <linearGradient id="glowLine" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#C8860A;stop-opacity:0"/>
+    <stop offset="30%" style="stop-color:#E8B84B;stop-opacity:0.7"/>
+    <stop offset="70%" style="stop-color:#F0C93A;stop-opacity:0.9"/>
+    <stop offset="100%" style="stop-color:#FFF0A0;stop-opacity:1"/>
+  </linearGradient>
+  <linearGradient id="curveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#C8860A;stop-opacity:0.2"/>
+    <stop offset="100%" style="stop-color:#F0C93A;stop-opacity:0.8"/>
+  </linearGradient>
+  <linearGradient id="subGold" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" style="stop-color:#E8D080"/>
+    <stop offset="100%" style="stop-color:#B8860A"/>
+  </linearGradient>
+  <linearGradient id="horizGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#C8860A;stop-opacity:0"/>
+    <stop offset="35%" style="stop-color:#F0C93A;stop-opacity:0.5"/>
+    <stop offset="50%" style="stop-color:#FFF8C0;stop-opacity:0.9"/>
+    <stop offset="65%" style="stop-color:#F0C93A;stop-opacity:0.5"/>
+    <stop offset="100%" style="stop-color:#C8860A;stop-opacity:0"/>
+  </linearGradient>
+  <filter id="softGlow">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+<mask id="imagine-text-gaps-fdck0c" maskUnits="userSpaceOnUse"><rect x="0" y="0" width="600" height="326" fill="white"/><rect x="70.953125" y="139" width="22.09375" height="29" fill="black" rx="2"/><rect x="171" y="99" width="402.703125" height="108" fill="black" rx="2"/><rect x="228.4453125" y="198" width="223.109375" height="19" fill="black" rx="2"/><rect x="478.96728515625" y="70" width="65.03271484375" height="16" fill="black" rx="2"/></mask></defs>
+
+<!-- Horizon glow ellipse -->
+<ellipse cx="300" cy="252" rx="260" ry="22" fill="url(#horizGlow)" opacity="0.55" style="stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.55;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<!-- Subtle horizon line -->
+<rect x="40" y="251" width="520" height="1" fill="url(#glowLine)" opacity="0.7" style="stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.7;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Grid lines (futuristic) horizontal -->
+<line x1="40" y1="210" x2="560" y2="210" stroke="#E8B84B" stroke-width="0.4" stroke-opacity="0.18" mask="url(#imagine-text-gaps-fdck0c)" style="fill:rgb(0, 0, 0);stroke:rgb(232, 184, 75);color:rgb(255, 255, 255);stroke-width:0.4px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="40" y1="170" x2="560" y2="170" stroke="#E8B84B" stroke-width="0.4" stroke-opacity="0.13" mask="url(#imagine-text-gaps-fdck0c)" style="fill:rgb(0, 0, 0);stroke:rgb(232, 184, 75);color:rgb(255, 255, 255);stroke-width:0.4px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="40" y1="130" x2="560" y2="130" stroke="#E8B84B" stroke-width="0.4" stroke-opacity="0.09" mask="url(#imagine-text-gaps-fdck0c)" style="fill:rgb(0, 0, 0);stroke:rgb(232, 184, 75);color:rgb(255, 255, 255);stroke-width:0.4px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Grid lines vertical -->
+<line x1="160" y1="90" x2="160" y2="252" stroke="#E8B84B" stroke-width="0.4" stroke-opacity="0.13" style="fill:rgb(0, 0, 0);stroke:rgb(232, 184, 75);color:rgb(255, 255, 255);stroke-width:0.4px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="280" y1="90" x2="280" y2="252" stroke="#E8B84B" stroke-width="0.4" stroke-opacity="0.13" mask="url(#imagine-text-gaps-fdck0c)" style="fill:rgb(0, 0, 0);stroke:rgb(232, 184, 75);color:rgb(255, 255, 255);stroke-width:0.4px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="400" y1="90" x2="400" y2="252" stroke="#E8B84B" stroke-width="0.4" stroke-opacity="0.13" mask="url(#imagine-text-gaps-fdck0c)" style="fill:rgb(0, 0, 0);stroke:rgb(232, 184, 75);color:rgb(255, 255, 255);stroke-width:0.4px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="520" y1="90" x2="520" y2="252" stroke="#E8B84B" stroke-width="0.4" stroke-opacity="0.13" mask="url(#imagine-text-gaps-fdck0c)" style="fill:rgb(0, 0, 0);stroke:rgb(232, 184, 75);color:rgb(255, 255, 255);stroke-width:0.4px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Compound growth curve fill -->
+<path d="M80,245 Q130,240 180,232 Q230,220 270,202 Q320,178 360,150 Q400,118 430,94 Q450,80 470,68 L470,252 Z" fill="url(#curveGrad)" opacity="0.18" style="stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.18;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Compound growth curve line -->
+<path d="M80,245 Q130,240 180,232 Q230,220 270,202 Q320,178 360,150 Q400,118 430,94 Q450,80 470,68" fill="none" stroke="url(#goldArrow)" stroke-width="2.2" stroke-linecap="round" filter="url(#softGlow)" mask="url(#imagine-text-gaps-fdck0c)" style="fill:none;color:rgb(255, 255, 255);stroke-width:2.2px;stroke-linecap:round;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Data dots on curve -->
+<circle cx="130" cy="241" r="3" fill="#E8B84B" opacity="0.7" style="fill:rgb(232, 184, 75);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.7;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="220" cy="222" r="3" fill="#E8B84B" opacity="0.75" style="fill:rgb(232, 184, 75);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.75;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="320" cy="178" r="3.5" fill="#F0C93A" opacity="0.85" style="fill:rgb(240, 201, 58);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.85;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="400" cy="120" r="4" fill="#F5D97A" opacity="0.9" style="fill:rgb(245, 217, 122);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.9;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="470" cy="68" r="5" fill="#FFF0A0" filter="url(#softGlow)" style="fill:rgb(255, 240, 160);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Arrow tip -->
+<polygon points="470,55 462,76 478,76" fill="url(#goldArrow)" filter="url(#softGlow)" style="stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Coin symbol left -->
+<circle cx="82" cy="155" r="30" fill="none" stroke="url(#goldText)" stroke-width="1.5" opacity="0.7" style="fill:none;color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.7;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="82" cy="155" r="24" fill="none" stroke="#E8B84B" stroke-width="0.6" opacity="0.4" style="fill:none;stroke:rgb(232, 184, 75);color:rgb(255, 255, 255);stroke-width:0.6px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.4;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<text x="82" y="161" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="url(#goldText)" opacity="0.85" style="stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.85;font-family:Georgia, serif;font-size:22px;font-weight:700;text-anchor:middle;dominant-baseline:auto">$</text>
+
+<!-- Decorative ring segments around coin -->
+<path d="M82,121 A34,34 0 0,1 112,163" fill="none" stroke="#F0C93A" stroke-width="1" stroke-opacity="0.5" style="fill:none;stroke:rgb(240, 201, 58);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<path d="M52,148 A34,34 0 0,1 82,121" fill="none" stroke="#C8860A" stroke-width="1" stroke-opacity="0.35" style="fill:none;stroke:rgb(200, 134, 10);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Main text: CAPITAL -->
+<text x="175" y="182" font-family="'Arial Black', 'Impact', sans-serif" font-size="74" font-weight="900" letter-spacing="6" fill="url(#goldText)" filter="url(#softGlow)" style="stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Arial Black&quot;, Impact, sans-serif;font-size:74px;font-weight:900;text-anchor:start;dominant-baseline:auto">CAPITAL</text>
+
+<!-- Thin decorative lines flanking subtitle -->
+<line x1="175" y1="198" x2="248" y2="198" stroke="url(#subGold)" stroke-width="0.8" opacity="0.7" mask="url(#imagine-text-gaps-fdck0c)" style="fill:rgb(0, 0, 0);color:rgb(255, 255, 255);stroke-width:0.8px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.7;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="430" y1="198" x2="503" y2="198" stroke="url(#subGold)" stroke-width="0.8" opacity="0.7" mask="url(#imagine-text-gaps-fdck0c)" style="fill:rgb(0, 0, 0);color:rgb(255, 255, 255);stroke-width:0.8px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.7;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Subtitle -->
+<text x="340" y="212" text-anchor="middle" font-family="'Arial', sans-serif" font-size="13" font-weight="400" letter-spacing="5" fill="#D4A820" opacity="0.85" style="fill:rgb(212, 168, 32);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.85;font-family:Arial, sans-serif;font-size:13px;font-weight:400;text-anchor:middle;dominant-baseline:auto">COMPOUND GROWTH</text>
+
+<!-- Small formula hint -->
+<text x="540" y="82" text-anchor="end" font-family="'Georgia', serif" font-size="11" fill="#E8B84B" opacity="0.55" style="fill:rgb(232, 184, 75);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.55;font-family:Georgia, serif;font-size:11px;font-weight:400;text-anchor:end;dominant-baseline:auto">A = P(1+r)ⁿ</text>
+
+</svg>

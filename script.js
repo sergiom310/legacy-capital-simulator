@@ -132,307 +132,186 @@ function dibujarGrafico(labels, data) {
   });
 }
 
-// ===== Generación de PDF (modo mixto: blanco / corporativo) =====
+// ===== Generación de PDF (nativo jsPDF — sin recorte de imágenes) =====
 async function generarPDF() {
-  // si no hay resultados, evitar generar
   const tbody = document.querySelector("#tabla-resultados tbody");
   if (!tbody || tbody.children.length === 0) {
     alert("Primero genera la proyección con 'Calcular'.");
     return;
   }
 
-  // preparar contenido para PDF (plantilla ligera en blanco)
-  const exportable = document.getElementById("exportable");
-
-  // crear contenedor oculto con estilo claro (pdfTemplateWrapper)
-  let wrapper = document.getElementById("pdfTemplateWrapper");
-  if (wrapper) wrapper.remove();
-
-  wrapper = document.createElement("div");
-  wrapper.id = "pdfTemplateWrapper";
-  document.body.appendChild(wrapper);
-
-  const pdfTemplate = document.createElement("div");
-  pdfTemplate.id = "pdfTemplate";
-  pdfTemplate.innerHTML = `
-    <div class="pdf-header">
-      <img src="logo_back.png" width="290" alt="logo" />
-      <div class="pdf-title">Simulación de Crecimiento Capital Legacy Capital</div>
-    </div>
-    <div class="pdf-summary" id="pdfSummary"></div>
-    <table class="pdf-table" id="pdfTable">
-      <thead>
-        <tr><th>Mes</th><th>Capital Inicial</th><th>Interés</th><th>Capital Final</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div style="margin-top:12px; text-align:center; color:#333; font-size:11px">Reporte generado automáticamente por Legacy Capital</div>
-  `;
-  wrapper.appendChild(pdfTemplate);
-
-  // Llenar tabla del pdfTemplate con datos de la tabla visible
-  const pdfTbody = pdfTemplate.querySelector("tbody");
   const rows = document.querySelectorAll("#tabla-resultados tbody tr");
-  rows.forEach(r => {
-    const cols = r.querySelectorAll("td");
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${cols[0].textContent}</td><td>${cols[1].textContent}</td><td>${cols[2].textContent}</td><td>${cols[3].textContent}</td>`;
-    pdfTbody.appendChild(tr);
-  });
-
-  // Executive summary dinámico
   const capitalInicial = Math.round(Number(document.getElementById("capital").value));
   const interesMensual = Number(document.getElementById("interes").value);
   const meses = Number(document.getElementById("meses").value);
-  // capital final (última fila)
   const ultimaFila = rows[rows.length - 1];
-  const capitalFinalText = ultimaFila ? ultimaFila.querySelectorAll("td")[3].textContent : "";
-  const pdfSummary = document.getElementById("pdfSummary");
-  pdfSummary.innerHTML = `Con una inversión inicial de <strong>$ ${capitalInicial.toLocaleString('es-ES')}</strong> al <strong>${interesMensual}%</strong> mensual, en <strong>${meses} meses</strong> tu capital se proyecta a <strong>${capitalFinalText}</strong>.`;
+  const capitalFinalText = ultimaFila ? ultimaFila.querySelectorAll("td")[3].textContent.trim() : "";
 
-  // Crear un canvas temporal para el gráfico del PDF con dimensiones fijas
-  // Esto evita problemas de renderizado en resoluciones móviles
-  if (chart && chart.data) {
-    const tempCanvasContainer = document.createElement("div");
-    tempCanvasContainer.style.width = "760px";
-    tempCanvasContainer.style.height = "280px";
-    tempCanvasContainer.style.position = "absolute";
-    tempCanvasContainer.style.left = "-9999px";
-    
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = 760;
-    tempCanvas.height = 280;
-    tempCanvasContainer.appendChild(tempCanvas);
-    document.body.appendChild(tempCanvasContainer);
-    
-    // Crear un gráfico temporal con los mismos datos pero en tamaño fijo
-    const tempChart = new Chart(tempCanvas.getContext("2d"), {
-      type: 'bar',
-      data: chart.data,
-      options: {
-        responsive: false,
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: 10,
-            right: 10,
-            bottom: 10,
-            left: 10
-          }
-        },
-        scales: {
-          x: { 
-            ticks: { color: '#666', font: { size: 10 } }, 
-            grid: { color: '#e0e0e0' } 
-          },
-          y: { 
-            ticks: { color: '#666', font: { size: 10 } }, 
-            grid: { color: '#e0e0e0' } 
-          }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: false }
-        }
-      }
-    });
-    
-    // Esperar a que el gráfico se renderice
-    await new Promise(r => setTimeout(r, 150));
-    
-    // Capturar la imagen del gráfico temporal
-    const chartImg = document.createElement("img");
-    chartImg.src = tempChart.toBase64Image();
-    chartImg.style.width = "100%";
-    chartImg.style.maxHeight = "280px";
-    chartImg.style.marginTop = "12px";
-    chartImg.style.objectFit = "contain";
-    pdfTemplate.appendChild(chartImg);
-    
-    // Limpiar el gráfico y canvas temporal
-    tempChart.destroy();
-    document.body.removeChild(tempCanvasContainer);
-  }
-
-  // esperar un instante para que imágenes carguen correctamente
-  await new Promise(r => setTimeout(r, 250));
-
-  // preparar jsPDF (A4 vertical)
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF('p', 'mm', 'a4');
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 10;
-  const usableHeight = pageHeight - 20; // con márgenes superior e inferior
+  const pageWidth  = pdf.internal.pageSize.getWidth();   // 210 mm
+  const pageHeight = pdf.internal.pageSize.getHeight();  // 297 mm
+  const margin = 14;
+  const usableW = pageWidth - margin * 2;                // 182 mm
+  const footerY = pageHeight - 8;
 
-  // Capturar header y resumen
-  const headerElement = pdfTemplate.querySelector('.pdf-header');
-  const summaryElement = pdfTemplate.querySelector('.pdf-summary');
-  const tableElement = pdfTemplate.querySelector('.pdf-table');
-  
-  // Generar imagen del header con compresión JPEG
-  const headerCanvas = await html2canvas(headerElement, { scale: 1.5, useCORS: true });
-  const headerImgData = headerCanvas.toDataURL("image/jpeg", 0.85);
-  const headerProps = pdf.getImageProperties(headerImgData);
-  const headerWidth = pageWidth - 20;
-  const headerHeight = (headerProps.height * headerWidth) / headerProps.width;
+  // Columnas: Mes | Capital Inicial | Interés | Capital Final
+  const colW  = [20, 56, 56, 50];
+  const colX  = [margin, margin + 20, margin + 76, margin + 132];
+  const rowH  = 7;
+  const thH   = 9;
 
-  // Generar imagen del resumen con compresión JPEG
-  const summaryCanvas = await html2canvas(summaryElement, { scale: 1.5, useCORS: true });
-  const summaryImgData = summaryCanvas.toDataURL("image/jpeg", 0.85);
-  const summaryProps = pdf.getImageProperties(summaryImgData);
-  const summaryWidth = pageWidth - 20;
-  const summaryHeight = (summaryProps.height * summaryWidth) / summaryProps.width;
+  let y = margin;
 
-  // Generar imagen de la tabla con compresión JPEG
-  const tableCanvas = await html2canvas(tableElement, { scale: 1.5, useCORS: true });
-  const tableImgData = tableCanvas.toDataURL("image/jpeg", 0.85);
-  const tableProps = pdf.getImageProperties(tableImgData);
-  const tableWidth = pageWidth - 20;
-  const tableHeight = (tableProps.height * tableWidth) / tableProps.width;
-
-  // Capturar imagen del gráfico (si existe) con compresión JPEG
-  let chartImgData = null;
-  let chartWidth = 0;
-  let chartHeight = 0;
-  const chartElement = pdfTemplate.querySelector('img[src^="data:image"]');
-  if (chartElement) {
-    const chartCanvas = await html2canvas(chartElement, { scale: 1.5, useCORS: true });
-    chartImgData = chartCanvas.toDataURL("image/jpeg", 0.85);
-    const chartProps = pdf.getImageProperties(chartImgData);
-    chartWidth = pageWidth - 20;
-    chartHeight = (chartProps.height * chartWidth) / chartProps.width;
+  // ── helpers ──────────────────────────────────────────────────────────────
+  function newPage() {
+    pdf.addPage();
+    y = margin;
   }
 
-  // Primera página - Header, resumen y tabla (o parte de ella)
-  let currentY = margin;
-  let currentPage = 1;
-  
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-  
-  // Agregar header
-  pdf.addImage(headerImgData, 'PNG', margin, currentY, headerWidth, headerHeight);
-  currentY += headerHeight + 5;
-
-  // Agregar resumen
-  pdf.addImage(summaryImgData, 'PNG', margin, currentY, summaryWidth, summaryHeight);
-  currentY += summaryHeight + 5;
-
-  // Calcular cuánto espacio queda para la tabla en la primera página
-  let spaceLeft = pageHeight - currentY - 15; // 15mm para el pie de página
-  
-  if (tableHeight <= spaceLeft) {
-    // La tabla cabe en la primera página
-    pdf.addImage(tableImgData, 'JPEG', margin, currentY, tableWidth, tableHeight);
-    currentY += tableHeight + 10;
-    
-    // Intentar agregar el gráfico en la misma página
-    if (chartImgData && (currentY + chartHeight + 15) <= pageHeight) {
-      pdf.addImage(chartImgData, 'JPEG', margin, currentY, chartWidth, chartHeight);
-      currentY += chartHeight;
-    } else if (chartImgData) {
-      // El gráfico no cabe, crear nueva página
-      pdf.addPage();
-      currentPage++;
-      currentY = margin;
-      pdf.setFillColor(255, 255, 255);
-      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-      pdf.addImage(chartImgData, 'JPEG', margin, currentY, chartWidth, chartHeight);
-      currentY += chartHeight;
-    }
-  } else {
-    // La tabla no cabe en una página, dividirla
-    // Añadir lo que cabe en la primera página usando el mismo método de crop
-    const firstPageTableHeight = spaceLeft;
-    
-    // Recortar la imagen de la tabla para la primera página
-    const firstPageCropCanvas = document.createElement('canvas');
-    firstPageCropCanvas.width = tableCanvas.width;
-    const firstPagePixelHeight = (firstPageTableHeight / tableHeight) * tableCanvas.height;
-    firstPageCropCanvas.height = firstPagePixelHeight;
-    
-    const firstPageCropCtx = firstPageCropCanvas.getContext('2d');
-    firstPageCropCtx.drawImage(tableCanvas, 0, 0, tableCanvas.width, firstPagePixelHeight, 0, 0, tableCanvas.width, firstPagePixelHeight);
-    
-    const firstPageCroppedImgData = firstPageCropCanvas.toDataURL("image/jpeg", 0.85);
-    pdf.addImage(firstPageCroppedImgData, 'JPEG', margin, currentY, tableWidth, firstPageTableHeight);
-    
-    // Calcular cuánto queda de la tabla
-    let remainingTableHeight = tableHeight - firstPageTableHeight;
-    let tableOffsetY = firstPageTableHeight;
-    
-    // Crear páginas adicionales para el resto de la tabla
-    while (remainingTableHeight > 0) {
-      pdf.addPage();
-      currentPage++;
-      currentY = margin;
-      pdf.setFillColor(255, 255, 255);
-      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-      
-      // Calcular cuánto espacio tenemos en esta página
-      // Dejar espacio para posible gráfica si es la última iteración
-      const isLastTablePage = remainingTableHeight <= (usableHeight - 10);
-      const maxTableHeightForPage = isLastTablePage ? 
-        Math.min(remainingTableHeight, (usableHeight - chartHeight - 20)) : 
-        Math.min(remainingTableHeight, usableHeight - 10);
-      
-      // Si es la última página de tabla y el gráfico cabe, usar menos espacio
-      let pageTableHeight;
-      if (isLastTablePage && chartImgData && (remainingTableHeight + chartHeight + 20) <= usableHeight) {
-        // El gráfico cabe en esta página con la tabla
-        pageTableHeight = remainingTableHeight;
-      } else {
-        // Usar todo el espacio disponible
-        pageTableHeight = Math.min(remainingTableHeight, usableHeight - 10);
-      }
-      
-      // Necesitamos recortar la imagen de la tabla
-      const cropCanvas = document.createElement('canvas');
-      cropCanvas.width = tableCanvas.width;
-      const pixelOffset = (tableOffsetY / tableHeight) * tableCanvas.height;
-      const pixelHeight = (pageTableHeight / tableHeight) * tableCanvas.height;
-      cropCanvas.height = pixelHeight;
-      
-      const cropCtx = cropCanvas.getContext('2d');
-      cropCtx.drawImage(tableCanvas, 0, pixelOffset, tableCanvas.width, pixelHeight, 0, 0, tableCanvas.width, pixelHeight);
-      
-      const croppedImgData = cropCanvas.toDataURL("image/jpeg", 0.85);
-      pdf.addImage(croppedImgData, 'JPEG', margin, currentY, tableWidth, pageTableHeight);
-      currentY += pageTableHeight + 10;
-      
-      remainingTableHeight -= pageTableHeight;
-      tableOffsetY += pageTableHeight;
-    }
-    
-    // Agregar gráfico: intentar en la página actual primero
-    if (chartImgData) {
-      if ((currentY + chartHeight + 15) <= pageHeight) {
-        // Cabe en la página actual
-        pdf.addImage(chartImgData, 'JPEG', margin, currentY, chartWidth, chartHeight);
-        currentY += chartHeight;
-      } else {
-        // Crear nueva página para el gráfico
-        pdf.addPage();
-        currentPage++;
-        currentY = margin;
-        pdf.setFillColor(255, 255, 255);
-        pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-        pdf.addImage(chartImgData, 'JPEG', margin, currentY, chartWidth, chartHeight);
-        currentY += chartHeight;
-      }
-    }
+  function ensureSpace(needed) {
+    if (y + needed > footerY - 4) newPage();
   }
 
-  // Pie con fecha en la última página
-  const fecha = new Date().toLocaleDateString('es-ES');
+  function drawTableHeader() {
+    pdf.setFillColor(25, 25, 25);
+    pdf.rect(margin, y, usableW, thH, 'F');
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(255, 153, 51);
+    const headers = ['Mes', 'Capital Inicial', 'Interés', 'Capital Final'];
+    headers.forEach((h, i) => {
+      pdf.text(h, colX[i] + colW[i] / 2, y + 6, { align: 'center' });
+    });
+    y += thH;
+  }
+
+  // ── ENCABEZADO ────────────────────────────────────────────────────────────
+  pdf.setFillColor(18, 18, 18);
+  pdf.rect(0, 0, pageWidth, 20, 'F');
+  pdf.setFontSize(13);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setTextColor(255, 153, 51);
+  pdf.text('Simulación de Crecimiento de Capital', pageWidth / 2, 13, { align: 'center' });
+  y = 26;
+
+  // ── RESUMEN ───────────────────────────────────────────────────────────────
   pdf.setFontSize(10);
-  pdf.setTextColor(120);
-  pdf.text(`Generado el ${fecha}`, margin, pageHeight - 10);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setTextColor(50, 50, 50);
+  const resumen = `Con una inversión inicial de $ ${capitalInicial.toLocaleString('es-ES')} al ${interesMensual}% mensual, en ${meses} meses tu capital se proyecta a ${capitalFinalText}.`;
+  const resumenLines = pdf.splitTextToSize(resumen, usableW);
+  pdf.text(resumenLines, pageWidth / 2, y, { align: 'center' });
+  y += resumenLines.length * 5 + 6;
 
-  // descargar
-  pdf.save(`Reporte_LegacyCapital_${fecha.replace(/\//g,'-')}.pdf`);
+  // ── TABLA ─────────────────────────────────────────────────────────────────
+  drawTableHeader();
 
-  // limpiar wrapper
-  wrapper.remove();
+  pdf.setFontSize(9);
+  pdf.setFont('helvetica', 'normal');
+  rows.forEach((row, idx) => {
+    ensureSpace(rowH);
+    // Si se añadió página nueva, repetir cabecera
+    if (y === margin) drawTableHeader();
+
+    const cols = row.querySelectorAll('td');
+    const bg = idx % 2 === 0 ? [255, 255, 255] : [250, 247, 242];
+    pdf.setFillColor(...bg);
+    pdf.rect(margin, y, usableW, rowH, 'F');
+    pdf.setDrawColor(220, 220, 220);
+    pdf.line(margin, y + rowH, margin + usableW, y + rowH);
+    pdf.setTextColor(35, 35, 35);
+    cols.forEach((col, i) => {
+      pdf.text(col.textContent.trim(), colX[i] + colW[i] / 2, y + 5, { align: 'center' });
+    });
+    y += rowH;
+  });
+
+  y += 6;
+
+  // ── ROI ───────────────────────────────────────────────────────────────────
+  const roiText = document.getElementById("roi").textContent.trim();
+  if (roiText) {
+    ensureSpace(10);
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(255, 153, 51);
+    pdf.text(roiText, pageWidth / 2, y, { align: 'center' });
+    y += 10;
+  }
+
+  // ── GRÁFICO ───────────────────────────────────────────────────────────────
+  if (chart && chart.data && chart.data.datasets && chart.data.datasets[0]) {
+    const chartH_mm = 78;
+    ensureSpace(chartH_mm + 4);
+
+    // Canvas temporal de tamaño fijo para evitar diferencias de resolución
+    const tmpContainer = document.createElement('div');
+    tmpContainer.style.cssText = 'width:760px;height:280px;position:absolute;left:-9999px;top:0;';
+    const tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width  = 760;
+    tmpCanvas.height = 280;
+    tmpContainer.appendChild(tmpCanvas);
+    document.body.appendChild(tmpContainer);
+
+    const tmpChart = new Chart(tmpCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: chart.data.labels,
+        datasets: [{
+          data: chart.data.datasets[0].data,
+          backgroundColor: 'rgba(204,119,34,0.75)',
+          borderColor: '#CC7722',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        animation: false,
+        responsive: false,
+        maintainAspectRatio: false,
+        scales: {
+          x: { ticks: { color: '#444', font: { size: 10 } }, grid: { color: '#e0e0e0' } },
+          y: { ticks: { color: '#444', font: { size: 10 } }, grid: { color: '#e0e0e0' } }
+        },
+        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+      }
+    });
+
+    // Esperar un frame para que Chart.js termine de pintar
+    await new Promise(r => requestAnimationFrame(r));
+
+    const chartImgData = tmpCanvas.toDataURL('image/png');
+    const chartW_mm = usableW;
+    pdf.addImage(chartImgData, 'PNG', margin, y, chartW_mm, chartH_mm);
+    y += chartH_mm + 4;
+
+    tmpChart.destroy();
+    document.body.removeChild(tmpContainer);
+  }
+
+  // ── NOTA ──────────────────────────────────────────────────────────────────
+  ensureSpace(10);
+  pdf.setFontSize(7.5);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setTextColor(130);
+  pdf.text(
+    '*Cálculo compuesto considerando solo días hábiles (lunes a viernes) y tasa mensual proporcional. Valores redondeados a enteros.',
+    pageWidth / 2, y, { align: 'center' }
+  );
+  y += 5;
+  pdf.text('Reporte generado automáticamente por Capital', pageWidth / 2, y, { align: 'center' });
+
+  // ── PIE DE PÁGINA EN TODAS LAS HOJAS ─────────────────────────────────────
+  const fecha = new Date().toLocaleDateString('es-ES');
+  const totalPages = pdf.internal.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    pdf.setPage(p);
+    pdf.setFontSize(8);
+    pdf.setTextColor(160);
+    pdf.text(`Generado el ${fecha}`, margin, footerY);
+    pdf.text('© 2026 Capital — Proyección estimada, no representa consejo financiero.', pageWidth / 2, footerY, { align: 'center' });
+    pdf.text(`${p} / ${totalPages}`, pageWidth - margin, footerY, { align: 'right' });
+  }
+
+  pdf.save(`Reporte_Capital_${fecha.replace(/\//g, '-')}.pdf`);
 }
