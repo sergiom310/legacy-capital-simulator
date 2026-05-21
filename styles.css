@@ -12,7 +12,26 @@ h1 { color: #DEA13F; font-weight: 600; font-size: 20px; }
 .inputs { display: grid; gap: 10px; background: #0d0d0d; border: 1px solid #4D3319; padding: 18px; border-radius: 12px; max-width: 820px; justify-items: center; justify-content: center; margin: auto; }
 label { color: #FBE497; font-size: 13px; }
 input { background: #120d06; border: 1px solid #DEA13F; color: #fff; padding: 10px; border-radius: 8px; font-size: 15px; max-width: 310px; width: 100%; }
+
+/* Radio buttons */
+.radio-group { display: flex; gap: 20px; justify-content: center; margin-top: 8px; margin-bottom: 4px; }
+.radio-label { display: flex; align-items: center; gap: 8px; color: #FBE497; font-size: 14px; cursor: pointer; }
+.radio-label input[type="radio"] { 
+  appearance: none; width: 18px; height: 18px; border: 2px solid #DEA13F; border-radius: 50%; cursor: pointer; position: relative;
+  background: #120d06;
+}
+.radio-label input[type="radio"]:checked { 
+  background: #DEA13F; border-color: #FFD699;
+}
+.radio-label input[type="radio"]:checked::after {
+  content: ''; position: absolute; width: 8px; height: 8px; background: #0d0d0d; border-radius: 50%; 
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+.radio-label:hover { color: #FFD699; }
+.radio-label:hover input[type="radio"] { border-color: #FFD699; }
 .row { display:flex; gap:10px; margin-top:6px; }
+.dias-operativos-container { display: grid; gap: 10px; margin-top: 8px; }
+.dias-operativos-container.oculto { display: none; }
 .action-btn, .pdf-btn {
   background: linear-gradient(90deg,#DEA13F,#CC7722); border: none; padding: 10px 14px; border-radius: 10px; color:#1a0e05; font-weight:700; cursor:pointer;
 }

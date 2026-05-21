@@ -1,16 +1,57 @@
-// ===== Utilidades =====
-function esDiaHabil(fecha) {
-  const d = fecha.getDay();
-  return d >= 1 && d <= 5;
+let chart = null;
+
+// ===== Sincronizar tipo de interés con tipo de período =====
+function sincronizarPeriodo() {
+  const tipoInteres = document.querySelector('input[name="tipoInteres"]:checked').value;
+  const radioMeses = document.querySelector('input[name="tipoPeriodo"][value="meses"]');
+  const radioDias = document.querySelector('input[name="tipoPeriodo"][value="dias"]');
+  
+  if (tipoInteres === 'mensual') {
+    radioMeses.checked = true;
+  } else {
+    radioDias.checked = true;
+  }
+  
+  // Actualizar visibilidad del campo días operativos
+  toggleDiasOperativos();
 }
 
-let chart = null;
+// ===== Mostrar/ocultar campo días operativos según período =====
+function toggleDiasOperativos() {
+  const tipoPeriodo = document.querySelector('input[name="tipoPeriodo"]:checked').value;
+  const diasOperativosContainer = document.getElementById('diasOperativosContainer');
+  
+  if (tipoPeriodo === 'meses') {
+    diasOperativosContainer.classList.remove('oculto');
+  } else {
+    diasOperativosContainer.classList.add('oculto');
+  }
+}
+
+// Inicializar event listeners al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+  const radiosInteres = document.querySelectorAll('input[name="tipoInteres"]');
+  radiosInteres.forEach(radio => {
+    radio.addEventListener('change', sincronizarPeriodo);
+  });
+  
+  const radiosPeriodo = document.querySelectorAll('input[name="tipoPeriodo"]');
+  radiosPeriodo.forEach(radio => {
+    radio.addEventListener('change', toggleDiasOperativos);
+  });
+  
+  // Configuración inicial
+  toggleDiasOperativos();
+});
 
 // ===== Cálculo y render UI =====
 function calcularProyeccion() {
   const capitalInicial = Number(document.getElementById("capital").value);
-  const interesMensual = Number(document.getElementById("interes").value);
-  const meses = parseInt(document.getElementById("meses").value, 10);
+  const tasaInteres = Number(document.getElementById("interes").value);
+  const periodo = parseInt(document.getElementById("periodo").value, 10);
+  const tipoInteres = document.querySelector('input[name="tipoInteres"]:checked').value;
+  const tipoPeriodo = document.querySelector('input[name="tipoPeriodo"]:checked').value;
+  const diasOperativos = parseInt(document.getElementById("diasOperativos").value, 10) || 22;
   const error = document.getElementById("error");
   const resultados = document.getElementById("resultados");
   const tbody = document.querySelector("#tabla-resultados tbody");
@@ -21,70 +62,119 @@ function calcularProyeccion() {
   roiEl.textContent = "";
   resultados.classList.add("oculto");
 
-  if (!capitalInicial || isNaN(interesMensual) || !meses || meses < 1) {
+  if (!capitalInicial || isNaN(tasaInteres) || !periodo || periodo < 1) {
     error.textContent = "Por favor completa todos los campos correctamente.";
     return;
   }
 
   let capital = capitalInicial;
-  let fechaActual = new Date();
   const labels = [];
   const data = [];
 
-  for (let mes = 1; mes <= meses; mes++) {
-    // fecha fin del mes (mismo día +1 mes)
-    const fechaFin = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, fechaActual.getDate());
+  if (tipoPeriodo === 'meses') {
+    // Cálculo por MESES
+    if (tipoInteres === 'mensual') {
+      // i% MENSUAL aplicado MES por MES
+      for (let mes = 1; mes <= periodo; mes++) {
+        const capitalInicialMes = capital; // Capital al inicio de ESTE mes
+        const tasaMensual = tasaInteres / 100;
+        
+        // Aplicar interés una vez por mes
+        capital = capital * (1 + tasaMensual);
+        
+        const interesGanado = capital - capitalInicialMes; // Interés de ESTE mes solamente
+        const cIniFormatted = capitalInicialMes.toFixed(2);
+        const intFormatted = interesGanado.toFixed(2);
+        const cFinalFormatted = capital.toFixed(2);
 
-    // contar días hábiles reales entre fechaActual (inclusive) y fechaFin (exclusive)
-    let diasHabiles = 0;
-    let temp = new Date(fechaActual);
-    while (temp < fechaFin) {
-      if (esDiaHabil(temp)) diasHabiles++;
-      temp.setDate(temp.getDate() + 1);
+        tbody.innerHTML += `
+          <tr>
+            <td>Mes ${mes}</td>
+            <td>$ ${Number(cIniFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td>$ ${Number(intFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td>$ ${Number(cFinalFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+          </tr>
+        `;
+
+        labels.push(`Mes ${mes}`);
+        data.push(Number(cFinalFormatted));
+      }
+    } else {
+      // i% DIARIO aplicado DÍA por DÍA (meses convertidos a días operativos)
+      const totalDias = periodo * diasOperativos; // Convertir meses a días operativos
+      const tasaDiaria = tasaInteres / 100;
+      let capitalInicialDelMes = capital; // Guardar capital al inicio de cada mes
+      
+      for (let dia = 1; dia <= totalDias; dia++) {
+        capital = capital * (1 + tasaDiaria);
+        
+        // Mostrar cada X días (cada mes) o al final
+        if (dia % diasOperativos === 0 || dia === totalDias) {
+          const mes = Math.ceil(dia / diasOperativos);
+          const interesDelMes = capital - capitalInicialDelMes; // Interés ganado en este mes
+          
+          const cIniFormatted = capitalInicialDelMes.toFixed(2);
+          const intFormatted = interesDelMes.toFixed(2);
+          const cFinalFormatted = capital.toFixed(2);
+
+          tbody.innerHTML += `
+            <tr>
+              <td>Mes ${mes}</td>
+              <td>$ ${Number(cIniFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+              <td>$ ${Number(intFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+              <td>$ ${Number(cFinalFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            </tr>
+          `;
+
+          labels.push(`Mes ${mes}`);
+          data.push(Number(cFinalFormatted));
+          
+          // Actualizar el capital inicial para el próximo mes
+          capitalInicialDelMes = capital;
+        }
+      }
     }
-
-    // si por alguna razón diasHabiles es 0 (mes raro) evitamos división por 0
-    if (diasHabiles === 0) diasHabiles = 21;
-
-    // tasa mensual a decimal
-    const tasaMensual = interesMensual / 100;
-
-    // convertimos a tasa diaria que compuesta diariamente durante diasHabiles da tasaMensual
-    // (1 + r_m) = (1 + r_d)^{diasHabiles}  => r_d = (1 + r_m)^{1/d} - 1
-    const tasaDiaria = Math.pow(1 + tasaMensual, 1 / diasHabiles) - 1;
-
-    const capitalInicialMes = capital;
-
-    // aplicar día a día (solo hábiles)
-    for (let i = 0; i < diasHabiles; i++) {
+  } else {
+    // Cálculo por DÍAS CALENDARIO (todos los días, sin excepciones)
+    let tasaDiaria;
+    if (tipoInteres === 'mensual') {
+      // Si el interés es mensual, lo convertimos a diario asumiendo 30 días por mes estándar
+      const tasaMensual = tasaInteres / 100;
+      tasaDiaria = Math.pow(1 + tasaMensual, 1 / 30) - 1;
+    } else {
+      // Si el interés ya es diario, lo usamos directamente
+      tasaDiaria = tasaInteres / 100;
+    }
+    
+    // Aplicar interés TODOS los días (incluyendo fines de semana)
+    for (let diaCalendario = 1; diaCalendario <= periodo; diaCalendario++) {
+      const capitalInicialDia = capital; // Capital al inicio de ESTE día
+      
+      // Aplicar interés cada día sin excepción
       capital = capital * (1 + tasaDiaria);
+
+      // Mostrar TODOS los días (sin agrupación)
+      const interesGanado = capital - capitalInicialDia; // Interés de ESTE día solamente
+      const cIniFormatted = capitalInicialDia.toFixed(2);
+      const intFormatted = interesGanado.toFixed(2);
+      const cFinalFormatted = capital.toFixed(2);
+
+      tbody.innerHTML += `
+        <tr>
+          <td>Día ${diaCalendario}</td>
+          <td>$ ${Number(cIniFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+          <td>$ ${Number(intFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+          <td>$ ${Number(cFinalFormatted).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        </tr>
+      `;
+
+      labels.push(`Día ${diaCalendario}`);
+      data.push(Number(cFinalFormatted));
     }
-
-    const interesGanado = capital - capitalInicialMes;
-
-    // redondeo entero para presentación
-    const cIniRounded = Math.round(capitalInicialMes);
-    const intRounded = Math.round(interesGanado);
-    const cFinalRounded = Math.round(capital);
-
-    tbody.innerHTML += `
-      <tr>
-        <td>Mes ${mes}</td>
-        <td>$ ${cIniRounded.toLocaleString("es-ES")}</td>
-        <td>$ ${intRounded.toLocaleString("es-ES")}</td>
-        <td>$ ${cFinalRounded.toLocaleString("es-ES")}</td>
-      </tr>
-    `;
-
-    labels.push(`Mes ${mes}`);
-    data.push(cFinalRounded);
-
-    // avanzar al siguiente mes
-    fechaActual = new Date(fechaFin);
   }
 
   const roiTotal = ((capital / capitalInicial) - 1) * 100;
-  roiEl.textContent = `Retorno total: ${Math.round(roiTotal)}%`;
+  roiEl.textContent = `Retorno total: ${roiTotal.toFixed(2)}%`;
 
   resultados.classList.remove("oculto");
 
@@ -125,7 +215,7 @@ function dibujarGrafico(labels, data) {
         legend: { display: false },
         tooltip: {
           backgroundColor: '#0b0b0b', titleColor: '#FF9933', bodyColor: '#fff',
-          callbacks: { label: ctx => `$ ${Number(ctx.raw).toLocaleString('es-ES')}` }
+          callbacks: { label: ctx => `$ ${Number(ctx.raw).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` }
         }
       }
     }
@@ -141,9 +231,12 @@ async function generarPDF() {
   }
 
   const rows = document.querySelectorAll("#tabla-resultados tbody tr");
-  const capitalInicial = Math.round(Number(document.getElementById("capital").value));
-  const interesMensual = Number(document.getElementById("interes").value);
-  const meses = Number(document.getElementById("meses").value);
+  const capitalInicial = Number(document.getElementById("capital").value).toFixed(2);
+  const tasaInteres = Number(document.getElementById("interes").value);
+  const tipoInteres = document.querySelector('input[name="tipoInteres"]:checked').value;
+  const tipoPeriodo = document.querySelector('input[name="tipoPeriodo"]:checked').value;
+  const periodo = Number(document.getElementById("periodo").value);
+  const diasOperativos = parseInt(document.getElementById("diasOperativos").value, 10) || 22;
   const ultimaFila = rows[rows.length - 1];
   const capitalFinalText = ultimaFila ? ultimaFila.querySelectorAll("td")[3].textContent.trim() : "";
 
@@ -179,7 +272,7 @@ async function generarPDF() {
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(255, 153, 51);
-    const headers = ['Mes', 'Capital Inicial', 'Interés', 'Capital Final'];
+    const headers = ['Período', 'Capital Inicial', 'Interés', 'Capital Final'];
     headers.forEach((h, i) => {
       pdf.text(h, colX[i] + colW[i] / 2, y + 6, { align: 'center' });
     });
@@ -199,7 +292,10 @@ async function generarPDF() {
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
   pdf.setTextColor(50, 50, 50);
-  const resumen = `Con una inversión inicial de $ ${capitalInicial.toLocaleString('es-ES')} al ${interesMensual}% mensual, en ${meses} meses tu capital se proyecta a ${capitalFinalText}.`;
+  const tipoTexto = tipoInteres === 'mensual' ? 'mensual' : 'diario';
+  const periodoTexto = tipoPeriodo === 'meses' ? `${periodo} meses` : `${periodo} días`;
+  const diasOpTexto = (tipoPeriodo === 'meses' && tipoInteres === 'diario') ? ` (${diasOperativos} días operativos/mes)` : '';
+  const resumen = `Con una inversión inicial de $ ${Number(capitalInicial).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})} al ${tasaInteres}% ${tipoTexto}, en ${periodoTexto}${diasOpTexto}, tu capital se proyecta a ${capitalFinalText}.`;
   const resumenLines = pdf.splitTextToSize(resumen, usableW);
   pdf.text(resumenLines, pageWidth / 2, y, { align: 'center' });
   y += resumenLines.length * 5 + 6;

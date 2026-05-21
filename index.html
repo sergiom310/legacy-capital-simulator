@@ -25,11 +25,38 @@
       <label for="capital">Capital inicial (USD)</label>
       <input id="capital" type="number" placeholder="Ej: 10000" value="" />
 
-      <label for="interes">Interés mensual (%)</label>
+      <label for="interes">Interés (%)</label>
       <input id="interes" type="number" placeholder="Ej: 1.5" value="" />
 
-      <label for="meses">Período (meses)</label>
-      <input id="meses" type="number" placeholder="Ej: 12" min="1" value="" />
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="tipoInteres" value="mensual" checked />
+          <span>i% Mensual</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="tipoInteres" value="diario" />
+          <span>i% Diario</span>
+        </label>
+      </div>
+
+      <label for="periodo">Período</label>
+      <input id="periodo" type="number" placeholder="Ej: 12" min="1" value="" />
+
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="tipoPeriodo" value="meses" checked />
+          <span>Meses</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="tipoPeriodo" value="dias" />
+          <span>Días</span>
+        </label>
+      </div>
+
+      <div id="diasOperativosContainer" class="dias-operativos-container">
+        <label for="diasOperativos">Días operativos por mes</label>
+        <input id="diasOperativos" type="number" placeholder="Ej: 22" min="1" max="31" value="22" />
+      </div>
 
       <div class="row">
         <button class="action-btn" onclick="calcularProyeccion()">📈 Calcular</button>
@@ -47,7 +74,7 @@
           <table id="tabla-resultados" class="tabla-oscura">
             <thead>
               <tr>
-                <th>Mes</th>
+                <th>Período</th>
                 <th>Capital Inicial</th>
                 <th>Interés</th>
                 <th>Capital Final</th>
@@ -64,7 +91,7 @@
         </div>
       </div>
 
-      <p class="nota">*Cálculo compuesto considerando solo días hábiles (lunes a viernes) y tasa mensual proporcional. Valores redondeados a enteros.</p>
+      <p class="nota">*i% Mensual + Meses: interés aplicado 1 vez/mes. i% Diario + Meses: interés diario aplicado según días operativos/mes configurados. Período en Días: aplica interés cada día calendario exacto. Valores con 2 decimales.</p>
     </section>
   </main>
 
