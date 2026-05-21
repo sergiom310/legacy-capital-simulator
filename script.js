@@ -1,5 +1,45 @@
 let chart = null;
 
+// ===== Limpiar simulación =====
+function limpiarSimulacion() {
+  // Limpiar inputs
+  document.getElementById("capital").value = "";
+  document.getElementById("interes").value = "";
+  document.getElementById("periodo").value = "";
+  
+  // Restablecer valores por defecto
+  document.getElementById("diasOperativos").value = "22";
+  
+  // Restablecer radios a sus valores por defecto
+  document.querySelector('input[name="tipoInteres"][value="mensual"]').checked = true;
+  document.querySelector('input[name="tipoPeriodo"][value="meses"]').checked = true;
+  
+  // Limpiar tabla
+  const tbody = document.querySelector("#tabla-resultados tbody");
+  if (tbody) tbody.innerHTML = "";
+  
+  // Limpiar ROI
+  const roiEl = document.getElementById("roi");
+  if (roiEl) roiEl.textContent = "";
+  
+  // Destruir gráfico
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+  
+  // Ocultar sección de resultados
+  const resultados = document.getElementById("resultados");
+  if (resultados) resultados.classList.add("oculto");
+  
+  // Limpiar mensajes de error
+  const error = document.getElementById("error");
+  if (error) error.textContent = "";
+  
+  // Actualizar visibilidad de días operativos
+  toggleDiasOperativos();
+}
+
 // ===== Sincronizar tipo de interés con tipo de período =====
 function sincronizarPeriodo() {
   const tipoInteres = document.querySelector('input[name="tipoInteres"]:checked').value;
@@ -196,11 +236,11 @@ function dibujarGrafico(labels, data) {
         backgroundColor: function(context) {
           // gradiente simple
           const g = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
-          g.addColorStop(0, 'rgba(255,153,51,0.7)');
-          g.addColorStop(1, 'rgba(204,119,34,0.6)');
+          g.addColorStop(0, 'rgba(0,255,127,0.7)');
+          g.addColorStop(1, 'rgba(0,204,102,0.6)');
           return g;
         },
-        borderColor: '#CC7722',
+        borderColor: '#00CC66',
         borderWidth: 1
       }]
     },
@@ -208,13 +248,13 @@ function dibujarGrafico(labels, data) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: { ticks: { color: '#FFB366' }, grid: { color: 'transparent' } },
-        y: { ticks: { color: '#FFB366' }, grid: { color: '#4A3316' } }
+        x: { ticks: { color: '#66FFB3' }, grid: { color: 'transparent' } },
+        y: { ticks: { color: '#66FFB3' }, grid: { color: '#1A4D33' } }
       },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#0b0b0b', titleColor: '#FF9933', bodyColor: '#fff',
+          backgroundColor: '#0b0b0b', titleColor: '#00FF7F', bodyColor: '#fff',
           callbacks: { label: ctx => `$ ${Number(ctx.raw).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` }
         }
       }
@@ -271,7 +311,7 @@ async function generarPDF() {
     pdf.rect(margin, y, usableW, thH, 'F');
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(255, 153, 51);
+    pdf.setTextColor(0, 255, 127);
     const headers = ['Período', 'Capital Inicial', 'Interés', 'Capital Final'];
     headers.forEach((h, i) => {
       pdf.text(h, colX[i] + colW[i] / 2, y + 6, { align: 'center' });
@@ -284,7 +324,7 @@ async function generarPDF() {
   pdf.rect(0, 0, pageWidth, 20, 'F');
   pdf.setFontSize(13);
   pdf.setFont('helvetica', 'bold');
-  pdf.setTextColor(255, 153, 51);
+  pdf.setTextColor(0, 255, 127);
   pdf.text('Simulación de Crecimiento de Capital', pageWidth / 2, 13, { align: 'center' });
   y = 26;
 
@@ -331,7 +371,7 @@ async function generarPDF() {
     ensureSpace(10);
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(255, 153, 51);
+    pdf.setTextColor(0, 255, 127);
     pdf.text(roiText, pageWidth / 2, y, { align: 'center' });
     y += 10;
   }
@@ -356,8 +396,8 @@ async function generarPDF() {
         labels: chart.data.labels,
         datasets: [{
           data: chart.data.datasets[0].data,
-          backgroundColor: 'rgba(204,119,34,0.75)',
-          borderColor: '#CC7722',
+          backgroundColor: 'rgba(0,204,102,0.75)',
+          borderColor: '#00CC66',
           borderWidth: 1
         }]
       },

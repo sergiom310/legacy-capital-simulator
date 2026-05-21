@@ -16,7 +16,7 @@
 <body class="dark">
 
   <header class="header">
-    <img src="capital_compound_logo.svg" alt="Interés Compuesto - Capital" class="logo" />
+    <img src="logo_compound_growth_verde.svg" alt="Interés Compuesto - Capital" class="logo" />
     <h1>Simulador de Interés Compuesto</h1>
   </header>
 
@@ -60,7 +60,8 @@
 
       <div class="row">
         <button class="action-btn" onclick="calcularProyeccion()">📈 Calcular</button>
-        <button class="pdf-btn" id="btnPdf" onclick="generarPDF()" title="Generar PDF">📄 Exportar PDF</button>
+        <button class="pdf-btn" id="btnPdf" onclick="generarPDF()" title="Generar PDF">📄 PDF</button>
+        <button class="action-btn clear-btn" onclick="limpiarSimulacion()" title="Limpiar simulación">🧹 Limpiar</button>
       </div>
 
       <p id="error" class="error"></p>
@@ -96,7 +97,7 @@
   </main>
 
   <footer class="footer">
-    <p>© 2026 Capital — Proyección estimada, no representa consejo financiero. - #Master</p>
+    <p>© <script>document.write(new Date().getFullYear());</script> Masters — Proyección estimada, no representa consejo financiero.</p>
   </footer>
 
   <script src="script.js"></script>
